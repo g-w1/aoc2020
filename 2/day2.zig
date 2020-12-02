@@ -1,3 +1,71 @@
+const std = @import("std");
+pub fn main() !void {
+    try main1();
+    try main2();
+}
+pub fn main1() !void {
+    std.debug.print("MAIN1\n", .{});
+    var sum: u32 = 0;
+    var it = std.mem.split(input, "\n");
+    while (it.next()) |line| {
+        sum += try isValid(line);
+    }
+    std.debug.print("Number of correct passwords: {}\n", .{sum});
+}
+pub fn main2() !void {
+    std.debug.print("MAIN2\n", .{});
+    var sum: u32 = 0;
+    var it = std.mem.split(input, "\n");
+    while (it.next()) |line| {
+        sum += try isValid1(line);
+    }
+    std.debug.print("Number of correct passwords: {}\n", .{sum});
+}
+
+fn isValid(line: []const u8) !u32 {
+    var it = std.mem.tokenize(line, "- :");
+    const num1s = it.next().?;
+    const num2s = it.next().?;
+    const char = it.next().?[0];
+    const password = it.next().?;
+    const num1 = try std.fmt.parseUnsigned(u32, num1s, 10);
+    const num2 = try std.fmt.parseUnsigned(u32, num2s, 10);
+    const sum = countNumOfTimesInStr(char, password);
+    const b = sum >= num1 and sum <= num2;
+    // std.debug.print("line: {s}\nchar: {c}, password: {s}, num1: {}, num2: {},sum: {}, b: {}\n", .{ line, char, password, num1, num2, sum, b });
+    if (b) {
+        return 1;
+    }
+    return 0;
+}
+fn isValid1(line: []const u8) !u32 {
+    var it = std.mem.tokenize(line, "- :");
+    const num1s = it.next().?;
+    const num2s = it.next().?;
+    const char = it.next().?[0];
+    const password = it.next().?;
+    const num1 = try std.fmt.parseUnsigned(u32, num1s, 10);
+    const num2 = try std.fmt.parseUnsigned(u32, num2s, 10);
+    const sum: u32 = if (xor(password[num1 - 1] == char, password[num2 - 1] == char)) 1 else 0;
+    // std.debug.print("line: {s}\nchar: {c}, password: {s}, num1: {}, num2: {}, sum: {}\n", .{ line, char, password, num1, num2, sum });
+    return sum;
+}
+fn xor(a: bool, b: bool) bool {
+    if (a)
+        return !b;
+    if (b)
+        return !a;
+    return false;
+}
+
+fn countNumOfTimesInStr(char: u8, buf: []const u8) u32 {
+    var sum: u32 = 0;
+    for (buf) |cha| {
+        if (cha == char) sum += 1;
+    }
+    return sum;
+}
+
 const input =
     \\1-14 b: bbbbbbbbbbbbbbbbbbb
     \\3-14 v: vvpvvvmvvvvvvvv
